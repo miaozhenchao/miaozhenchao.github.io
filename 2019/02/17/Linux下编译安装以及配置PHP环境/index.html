@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Linux下编译安装以及配置PHP环境 | ZhenChaoNotes</title><meta name="description" content="Linux下编译安装以及配置PHP环境安装准备 依次执行下面命令,不存在的就搜差不多的就行,下面安装的都是后面安装环境可能需要用上的依赖,不管37是不是21,复制粘贴就是了 Ubuntu安装: 123sudo apt-get update    sudo apt-get install    gcc    autoconf    openssl    libssl-dev    curl    l"><meta name="keywords" content="PHP,编译安装"><meta name="author" content="MiaoZhenChao"><meta name="copyright" content="MiaoZhenChao"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://www.luanyu.cool/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="Linux下编译安装以及配置PHP环境"><meta property="og:url" content="http://www.luanyu.cool/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/"><meta property="og:site_name" content="ZhenChaoNotes"><meta property="og:description" content="Linux下编译安装以及配置PHP环境安装准备 依次执行下面命令,不存在的就搜差不多的就行,下面安装的都是后面安装环境可能需要用上的依赖,不管37是不是21,复制粘贴就是了 Ubuntu安装: 123sudo apt-get update    sudo apt-get install    gcc    autoconf    openssl    libssl-dev    curl    l"><meta property="og:image" content="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/a23d9c263227441fb370079ad84bf525.jpg!sswm"><meta property="article:published_time" content="2019-02-17T05:35:20.000Z"><meta property="article:modified_time" content="2020-08-28T11:03:35.059Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="prev" title="记服务器中招挖矿病毒排查过程(解决方案篇)" href="http://www.luanyu.cool/2019/02/22/%E8%AE%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E6%8B%9B%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%BF%87%E7%A8%8B(%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E7%AF%87)/"><link rel="next" title="Redis的内存淘汰策略问题" href="http://www.luanyu.cool/2019/02/03/Redis%E7%9A%84%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5%E9%97%AE%E9%A2%98/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: {"languages":{"author":"作者: MiaoZhenChao","link":"链接: ","source":"来源: ZhenChaoNotes","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true
+  }</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="/css/touming.css"><link rel="stylesheet" href="/css/iconfont.css"><script src="/js/sakura.js"></script><div class="aplayer" data-id="5184835907" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-preload="auto"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.css"><script src="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><meta name="generator" content="Hexo 4.2.1"></head><body><canvas class="fireworks"></canvas><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">96</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">74</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">54</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Linux下编译安装以及配置PHP环境"><span class="toc-number">1.</span> <span class="toc-text">Linux下编译安装以及配置PHP环境</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装准备"><span class="toc-number">1.1.</span> <span class="toc-text">安装准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始安装"><span class="toc-number">1.2.</span> <span class="toc-text">开始安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-php下载以及安装"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.php下载以及安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-nginx下载以及安装"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.nginx下载以及安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-配置nginx支持php"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.配置nginx支持php</span></a></li></ol></li></ol></li></ol></div></div></div><div id="body-wrap"><div id="web_bg" data-type="color"></div><header class="post-bg" id="page-header" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/a23d9c263227441fb370079ad84bf525.jpg!sswm)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">ZhenChaoNotes</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Linux下编译安装以及配置PHP环境</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date" title="发表于 2019-02-17 13:35:20"><i class="fa-fw far fa-calendar-alt"></i> 发表于 2019-02-17</time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/PHP/">PHP</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta__icon"></i><span>字数总计:</span><span class="word-count">837</span><span class="post-meta__separator">|</span><i class="far fa-clock fa-fw post-meta__icon"></i><span>阅读时长: 3 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="far fa-eye fa-fw post-meta__icon"></i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"><span class="post-meta__separator">|</span><i class="far fa-comments fa-fw post-meta__icon"></i><span>评论数:</span><span class="disqus-comment-count comment-count"><a href="http://www.luanyu.cool/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/#disqus_thread"></a></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Linux下编译安装以及配置PHP环境"><a href="#Linux下编译安装以及配置PHP环境" class="headerlink" title="Linux下编译安装以及配置PHP环境"></a>Linux下编译安装以及配置PHP环境</h1><h2 id="安装准备"><a href="#安装准备" class="headerlink" title="安装准备"></a>安装准备</h2><p> 依次执行下面命令,不存在的就搜差不多的就行,下面安装的都是后面安装环境可能需要用上的依赖,不管37是不是21,复制粘贴就是了</p>
+<p><strong>Ubuntu安装:</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update    </span><br><span class="line"></span><br><span class="line">sudo apt-get install    gcc    autoconf    openssl    libssl-dev    curl    libcurl4-gnutls-dev    libjpeg-dev    libpng16-dev    freetype   libpcre3 libpcre3-dev    libxslt1.1 libxslt1-dev    bzip2    libbz2-dev</span><br></pre></td></tr></table></figure>
+
+<p><strong>centos安装:</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc openssl openssl-devel curl curl-devel libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel pcre pcre-devel libxslt libxslt-devel bzip2 bzip2-devel</span><br></pre></td></tr></table></figure>
+
+<h2 id="开始安装"><a href="#开始安装" class="headerlink" title="开始安装"></a>开始安装</h2><h3 id="1-php下载以及安装"><a href="#1-php下载以及安装" class="headerlink" title="1.php下载以及安装"></a>1.php下载以及安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">下载: wget http://am1.php.net/distributions/php-7.3.2.tar.gz  </span><br><span class="line"></span><br><span class="line">解压: tar -zxvf php-7.3.2.tar.gz </span><br><span class="line"></span><br><span class="line">进入目录开始编译安装:</span><br><span class="line"></span><br><span class="line">./configure --prefix=/opt/soft/php --enable-fpm</span><br><span class="line"></span><br><span class="line">下面是直接把常用的扩展安装好,免得后面在一个一个安装(推荐)</span><br><span class="line"></span><br><span class="line">./configure --prefix=/opt/soft/php  --with-curl --with-mysqli --with-openssl --with-pdo-mysql --enable-fpm</span><br><span class="line">make</span><br><span class="line">sudo make install</span><br><span class="line"></span><br><span class="line">设置快捷访问方式: sudo cp /opt/soft/php/bin/php /usr/local/bin/</span><br><span class="line">把php配置文件放在正确的位置</span><br><span class="line">确认正确位置:php -i | grep php.ini</span><br><span class="line">在下载的安装包中将php配置文件移动过来: </span><br><span class="line">sudo cp /opt/packages/php-7.3.2/php.ini-production /opt/soft/php/lib/php.ini</span><br><span class="line"></span><br><span class="line">ps:以后可以通过 php --ini 查看文件所在位置</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-nginx下载以及安装"><a href="#2-nginx下载以及安装" class="headerlink" title="2.nginx下载以及安装"></a>2.nginx下载以及安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">和上面php一样的步骤,下载--解压--编译--安装</span><br><span class="line">wget http://nginx.org/download/nginx-1.14.2.tar.gz</span><br><span class="line">./configure --prefix=/opt/soft/nginx --sbin-path=/opt/soft/nginx/sbin/nginx --conf-path=/opt/soft/nginx/config/nginx.conf --error-log-path=/opt/soft/nginx/logs/error.log --pid-path=/opt/soft/nginx/logs/nginx.pid --http-log-path=/opt/soft/nginx/logs/access.log --with-http_stub_status_module --with-http_ssl_module</span><br><span class="line">sudo make &amp;&amp; make install</span><br><span class="line">设置快捷访问方式: sudo cp /opt/soft/nginx/sbin/nginx /usr/local/bin/</span><br><span class="line">简单配置nginx(详细配置后面再重新开文章写),然后浏览器直接访问ip就能访问了(这个时候只能访问html,访问php是直接下载文件)</span><br></pre></td></tr></table></figure>
+
+<p><img src= "/img/loading.gif" data-src="/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/image-20200820211016275.png" alt="image-20200820211016275"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">开启nginx: sudo nginx(sudo nginx -s reload 重启nginx), 查看是否开起nginx: sudo netstat -anp | grep 80(端口号)</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-配置nginx支持php"><a href="#3-配置nginx支持php" class="headerlink" title="3.配置nginx支持php"></a>3.配置nginx支持php</h3><p>nginx不能直接和php通信,需要借助FastCGI(高速地在HTTP服务器和动态脚本语言间通信的接口),需要用到php-fpm(FastCGI Process Manager：FastCGI进程管理器, 他的具体概念可以参照这里<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fblog.csdn.net%2Fu010785091%2Farticle%2Fdetails%2F78705690" target="_blank" rel="noopener">搞清楚php-FPM到底是什么</a>),这也是为什么在编译安装php的时候需要带–enable-fpm这个扩展的原因.</p>
+<p>I. 启动php-fpm</p>
+<p>进入到  /opt/soft/php/etc 这个目录将php-fpm.conf.default改名为php-fpm.conf,编辑他查看最后一行</p>
+<p><img src= "/img/loading.gif" data-src="/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/image-20200820211059754.png" alt="image-20200820211059754"></p>
+<p> 然后进入最后一行指向php-pm.d目录,将<a href="http://www.conf.default改名成www.conf,并编辑成对应账号,我这里是xunan" target="_blank" rel="noopener">www.conf.default改名成www.conf,并编辑成对应账号,我这里是xunan</a></p>
+<p><img src= "/img/loading.gif" data-src="/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/image-20200820211119920.png" alt="image-20200820211119920"></p>
+<p>然后将/opt/soft/php/sbin/php-fpm设置快捷访问方式,并启动php-fpm,也就是执行下面两个命令</p>
+<p>  sudo cp /opt/soft/php/sbin/php-fpm /usr/local/bin/    sudo php-fpm</p>
+<p>  ps: 重启php-fpm: 先ps aux | grep php-fpm,然后kill掉对应的进程</p>
+<p>  II. 配置nginx支持php</p>
+<p><img src= "/img/loading.gif" data-src="/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/image-20200820211136582.png" alt="image-20200820211136582"></p>
+<p> 具体配置:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> location ~ \.php$ &#123;</span><br><span class="line">     try_files $uri &#x2F;index.php &#x3D;404;</span><br><span class="line">     fastcgi_split_path_info ^(.+\.php)(&#x2F;.+)$;</span><br><span class="line">     fastcgi_pass  127.0.0.1:9000;</span><br><span class="line">     fastcgi_index index.php;</span><br><span class="line">     fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;</span><br><span class="line">     include    fastcgi_params;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  按照上面配置完成后,在配置文件的root目录下建立一个index.php,编辑</p>
+<p><img src= "/img/loading.gif" data-src="/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/image-20200820211223303.png" alt="image-20200820211223303"></p>
+<p>然后重启nginx(sudo nginx -s reload),在浏览器ip访问</p>
+<p><img src= "/img/loading.gif" data-src="/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/image-20200820211239200.png" alt="image-20200820211239200"></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">MiaoZhenChao</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.luanyu.cool/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/">http://www.luanyu.cool/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.luanyu.cool" target="_blank">ZhenChaoNotes</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/PHP/">PHP</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85/">编译安装</a></div><div class="post_share"><div class="social-share" data-image="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/731622d1003441438720e9c364d3cdbb.jpg!sswm" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><button class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="wechat" onclick="window.open('http://123.57.180.161/wechat.jpg')"/><div class="post-qr-code__desc">wechat</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="alipay" onclick="window.open('http://123.57.180.161/alipay.jpg')"/><div class="post-qr-code__desc">alipay</div></li></ul></div></button></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2019/02/22/%E8%AE%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%AD%E6%8B%9B%E6%8C%96%E7%9F%BF%E7%97%85%E6%AF%92%E6%8E%92%E6%9F%A5%E8%BF%87%E7%A8%8B(%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E7%AF%87)/"><img class="prev-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/62ada983a84649c7870f5f0d716c865f.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">记服务器中招挖矿病毒排查过程(解决方案篇)</div></div></a></div><div class="next-post pull-right"><a href="/2019/02/03/Redis%E7%9A%84%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5%E9%97%AE%E9%A2%98/"><img class="next-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/77326f53356049e4bbfcf624b27a34da.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Redis的内存淘汰策略问题</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2018/12/03/PHP安装redis的模块/" title="PHP安装redis的模块"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/a867368a01694cc6b6736bd30e383f76.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2018-12-03</div><div class="relatedPosts_title">PHP安装redis的模块</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="disqus_thread"></div><script>var disqus_config = function () {
+  this.page.url = 'http://www.luanyu.cool/2019/02/17/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E4%BB%A5%E5%8F%8A%E9%85%8D%E7%BD%AEPHP%E7%8E%AF%E5%A2%83/';
+  this.page.identifier = '2019/02/17/Linux下编译安装以及配置PHP环境/';
+  this.page.title = 'Linux下编译安装以及配置PHP环境';
+};
+(function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+})();
+</script><script>function getDisqusCount() {
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/count.js';
+  s.id = 'dsq-count-scr';
+  (d.head || d.body).appendChild(s);
+}
+
+window.addEventListener('load', getDisqusCount, false);</script></div></article></main><footer id="footer" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/a23d9c263227441fb370079ad84bf525.jpg!sswm)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2010 - 2021 By MiaoZhenChao</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="footer_custom_text">Hi, welcome to my <a href="/">blog</a>!</div><div class="icp"><a href="http://www.beian.miit.gov.cn/state/outPortal/loginPortal.action" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>豫ICP备20019375号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><button id="readmode" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" title="缩小字体"><i class="fas fa-minus"></i></button><button class="translate_chn_to_cht" id="translateLink" title="简繁转换">繁</button><button id="darkmode" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fas fa-comments"></i></a><button class="close" id="mobile-toc-button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script id="ribbon_piao" mobile="false" src="/js/third-party/piao.js"></script><script id="canvas_nest" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="/js/third-party/canvas-nest.js"></script><script src="/js/third-party/activate-power-mode.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/search/local-search.js"></script><script>if (document.getElementsByClassName('mermaid').length) {
+  loadScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js',function () {
+    mermaid.initialize({
+      theme: 'default',
+  })
+})
+}</script><script src="https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js"></script><script src="/js/Lete.js"></script><script src="/js/daovoice.js"></script><script type="text/javascript" src="/js/crash_cheat.js"></script></body></html>

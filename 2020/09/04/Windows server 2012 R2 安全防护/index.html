@@ -1,0 +1,263 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Windows server 2012 R2 安全防护 | ZhenChaoNotes</title><meta name="description" content="安全加固操作手册编写不够完善，后续有更改请自己修改 Windows server 2012 R2 安全防护1、更新系统补丁 更新补丁是安全加固最重要的步骤。  具体操作如下 按下“WIN”键，如下图  选中属性  单击“windows更新”  “检查更新“并安装更新，更新完之后将“更改设置”里面的设置为”从不自动更新“ 因为自动更新会重启服务器，对服务可能会造成影响，我们并不希望这样的事情发生"><meta name="keywords" content="windows"><meta name="author" content="MiaoZhenChao"><meta name="copyright" content="MiaoZhenChao"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://www.luanyu.cool/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="Windows server 2012 R2 安全防护"><meta property="og:url" content="http://www.luanyu.cool/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/"><meta property="og:site_name" content="ZhenChaoNotes"><meta property="og:description" content="安全加固操作手册编写不够完善，后续有更改请自己修改 Windows server 2012 R2 安全防护1、更新系统补丁 更新补丁是安全加固最重要的步骤。  具体操作如下 按下“WIN”键，如下图  选中属性  单击“windows更新”  “检查更新“并安装更新，更新完之后将“更改设置”里面的设置为”从不自动更新“ 因为自动更新会重启服务器，对服务可能会造成影响，我们并不希望这样的事情发生"><meta property="og:image" content="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/8233054dfbd5431c95238f97a681bee2.jpg!sswm"><meta property="article:published_time" content="2020-09-04T15:05:20.000Z"><meta property="article:modified_time" content="2020-09-08T03:12:58.586Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="prev" title="PLSQ安装、汉化、破解、登陆教程" href="http://www.luanyu.cool/2020/09/07/PLSQ%E5%AE%89%E8%A3%85%E3%80%81%E6%B1%89%E5%8C%96%E3%80%81%E7%A0%B4%E8%A7%A3%E3%80%81%E7%99%BB%E9%99%86%E6%95%99%E7%A8%8B/"><link rel="next" title="VMware安装windows server 2012 r2详细教程" href="http://www.luanyu.cool/2020/09/04/VMware%E5%AE%89%E8%A3%85Windows%20server%202012%20R2/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: {"languages":{"author":"作者: MiaoZhenChao","link":"链接: ","source":"来源: ZhenChaoNotes","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true
+  }</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="/css/touming.css"><link rel="stylesheet" href="/css/iconfont.css"><script src="/js/sakura.js"></script><div class="aplayer" data-id="5184835907" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-preload="auto"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.css"><script src="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><meta name="generator" content="Hexo 4.2.1"></head><body><canvas class="fireworks"></canvas><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">96</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">74</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">54</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Windows-server-2012-R2-安全防护"><span class="toc-number">1.</span> <span class="toc-text">Windows server 2012 R2 安全防护</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、更新系统补丁"><span class="toc-number">1.1.</span> <span class="toc-text">1、更新系统补丁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、禁用不需要的服务"><span class="toc-number">1.2.</span> <span class="toc-text">2、禁用不需要的服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、系统权限设置"><span class="toc-number">1.3.</span> <span class="toc-text">3、系统权限设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、卸载危险组件"><span class="toc-number">1.4.</span> <span class="toc-text">4、卸载危险组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、开启防火墙"><span class="toc-number">1.5.</span> <span class="toc-text">5、开启防火墙</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6、更改远程端口"><span class="toc-number">1.6.</span> <span class="toc-text">6、更改远程端口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7、软件降权设置"><span class="toc-number">1.7.</span> <span class="toc-text">7、软件降权设置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#降权Serv-U"><span class="toc-number">1.7.1.</span> <span class="toc-text">降权Serv-U</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#降权apache"><span class="toc-number">1.7.2.</span> <span class="toc-text">降权apache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#降权mysql"><span class="toc-number">1.7.3.</span> <span class="toc-text">降权mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#降权tomcat"><span class="toc-number">1.7.4.</span> <span class="toc-text">降权tomcat</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8、修改系统管理员账号名称"><span class="toc-number">1.8.</span> <span class="toc-text">8、修改系统管理员账号名称</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9、安装安全辅助软件"><span class="toc-number">1.9.</span> <span class="toc-text">9、安装安全辅助软件</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div id="web_bg" data-type="color"></div><header class="post-bg" id="page-header" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/8233054dfbd5431c95238f97a681bee2.jpg!sswm)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">ZhenChaoNotes</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Windows server 2012 R2 安全防护</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date" title="发表于 2020-09-04 23:05:20"><i class="fa-fw far fa-calendar-alt"></i> 发表于 2020-09-04</time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/%E5%AE%89%E5%85%A8/">安全</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta__icon"></i><span>字数总计:</span><span class="word-count">2.5k</span><span class="post-meta__separator">|</span><i class="far fa-clock fa-fw post-meta__icon"></i><span>阅读时长: 8 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="far fa-eye fa-fw post-meta__icon"></i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"><span class="post-meta__separator">|</span><i class="far fa-comments fa-fw post-meta__icon"></i><span>评论数:</span><span class="disqus-comment-count comment-count"><a href="http://www.luanyu.cool/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/#disqus_thread"></a></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>安全加固操作手册编写不够完善，后续有更改请自己修改</p>
+<h1 id="Windows-server-2012-R2-安全防护"><a href="#Windows-server-2012-R2-安全防护" class="headerlink" title="Windows server 2012 R2 安全防护"></a>Windows server 2012 R2 安全防护</h1><h2 id="1、更新系统补丁"><a href="#1、更新系统补丁" class="headerlink" title="1、更新系统补丁"></a>1、更新系统补丁</h2><p> 更新补丁是安全加固最重要的步骤。</p>
+<p> 具体操作如下</p>
+<p>按下“WIN”键，如下图</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906211249993.png" alt="image-20200906211249993"></p>
+<p>选中属性</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906211319725.png" alt="image-20200906211319725"></p>
+<p>单击“windows更新”</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906211357318.png" alt="image-20200906211357318"></p>
+<p>“检查更新“并安装更新，更新完之后将“更改设置”里面的设置为”从不自动更新“</p>
+<p>因为自动更新会重启服务器，对服务可能会造成影响，我们并不希望这样的事情发生</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906211542598.png" alt="image-20200906211542598"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906211606156.png" alt="image-20200906211606156"></p>
+<p>安装更新后请先不要重启，先往后操作</p>
+<h2 id="2、禁用不需要的服务"><a href="#2、禁用不需要的服务" class="headerlink" title="2、禁用不需要的服务"></a>2、禁用不需要的服务</h2><p>1.禁用不必要而服务</p>
+<p>2.以下服务必须禁用：Server、Workstation、Print Spooler、Remote Registry、Routing and Remote Access、TCP/IP NetBIOS Helper、Computer Browser（该处存疑，请根据实际工作中需要禁用的服务进行禁用）</p>
+<p> 禁用方法如下，这里以Workstation为例，按下“win+r”，呼出“运行”菜单，输入“services.msc”并单击确定</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906212126032.png" alt="image-20200906212126032"></p>
+<p>进入到如下图页面</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906212256979.png" alt="image-20200906212256979"></p>
+<p>找到想要禁用的服务，右键该行，一级列表可以简单地控制启停，单击属性进行更详细的操作</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906212344798.png" alt="image-20200906212344798"></p>
+<p>进行对应的禁用操作，点击“应用”和“确定”</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906212508516.png" alt="image-20200906212508516"></p>
+<p>操作完成之后如下图</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906212617100.png" alt="image-20200906212617100"></p>
+<p>至此，服务禁用完成，其他服务同理</p>
+<h2 id="3、系统权限设置"><a href="#3、系统权限设置" class="headerlink" title="3、系统权限设置"></a>3、系统权限设置</h2><p>由于系统权限设置的地方非常多，我们只能公布常用的部分。</p>
+<p>部分文件被系统隐藏了，不便于设置，因此我们先将所有文件显示出来。</p>
+<p>显示所有文件操作方法如下</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906213359312.png" alt="image-20200906213359312"></p>
+<p>更改系统盘所有者为Administrators</p>
+<p>所有盘根目录只保留Administrators和SYSTEM权限。</p>
+<p>系统盘加上Users“读取权限”，仅当前目录</p>
+<p>C:\WINDOWS、C:\WINDOWS\system32、C:\Windows\SysWOW64 只保留Administrators和SYSTEM，以及User读和执行</p>
+<p>C:\Program Files 、C:\Program Files (x86) 只保留Administrators和SYSTEM</p>
+<p>C:\Program Files\Common Files 、C:\Program Files (x86)\Common Files 只保留Administrators和SYSTEM，以及User读和执行</p>
+<p>C:\ProgramData 只保留Administrators和SYSTEM，以及User读和执行</p>
+<p>C:\Users 只保留Administrators和SYSTEM</p>
+<p>C:\inetpub 只保留Administrators和SYSTEM</p>
+<p>C:\inetpub\custerr 只保留Administrators和SYSTEM，以及User读</p>
+<p>C:\inetpub\temp 只保留Administrators和SYSTEM，以及User读写删除和IIS_IUSRS读写删除</p>
+<p>C:\Windows\Temp 只保留Administrators和SYSTEM，以及User读写删除和IIS_IUSRS读写删除</p>
+<p>C:\Windows\tracing  只保留Administrators和SYSTEM，以及User读和network service读</p>
+<p>C:\Windows\Vss  只保留Administrators和SYSTEM，以及User读和network service读写删除</p>
+<p>C:\ProgramData\Microsoft\DeviceSync 只保留Administrators和SYSTEM，以及User读</p>
+<p>C:\WINDOWS\下的部分exe软件只保留Administrators和SYSTEM，如regedit.exe、regedt32.exe、cmd.exe、net.exe、net1.exe、netstat.exe、at.exe、attrib.exe、cacls.exe、format.com、activeds.tlb、shell32.dll、wshom.ocx </p>
+<p>更改权限的操作方法如下</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906214017427.png" alt="image-20200906214017427"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906214213819.png" alt="image-20200906214213819"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906214428448.png" alt="image-20200906214428448"></p>
+<p>目录的设置也同理</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906214525985.png" alt="image-20200906214525985"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906214651839.png" alt="image-20200906214651839"></p>
+<p>注意：如果安装了SQL Server软件，还需要给系统盘上SQL Server相关目录加上NT SERVICE\MSSQLSERVER的权限。</p>
+<p>如果设置后网站无法访问，给网站目录加上Users的读写删除权限试试。</p>
+<h2 id="4、卸载危险组件"><a href="#4、卸载危险组件" class="headerlink" title="4、卸载危险组件"></a>4、卸载危险组件</h2><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">regsvr32 /u <span class="variable">%SystemRoot%</span>\system32\shell32.dll</span><br><span class="line"></span><br><span class="line">regsvr32 /u <span class="variable">%SystemRoot%</span>\system32\wshom.ocx</span><br></pre></td></tr></table></figure>
+
+<p>操作方法如下</p>
+<p>“win+r”，唤出“运行”框，输入“cmd”后单击“确定”</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906213551765.png" alt="image-20200906213551765"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906213900413.png" alt="image-20200906213900413"></p>
+<h2 id="5、开启防火墙"><a href="#5、开启防火墙" class="headerlink" title="5、开启防火墙"></a>5、开启防火墙</h2><p> 建议只开放需要的端口，如：80、3389</p>
+<p> 注意：开启防火墙前必须先确认当前远程端口已经在放行规则 </p>
+<p> 我当前用的33699端口，因此防火墙需要加上33699端口</p>
+<p>操作方法如下</p>
+<p>1.首先点击桌面左下角的Window图标，点击“控制面板“，然后选择“windows防火墙”会弹出防火墙的详细页面，如下图所示：</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215011485.png" alt="image-20200906215011485"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215051424.png" alt="image-20200906215051424"></p>
+<p>2.然后点击“打开或关闭windows防火墙”就可以查看并设置具体防火墙的状态(开启或关闭)。</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215148054.png" alt="image-20200906215148054"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215220941.png" alt="image-20200906215220941"></p>
+<p>3.返回”windows防火墙“主界面，然后点击“高级设置”，点击左侧的“入站规则”，用户就可以看到服务器允许连接的程序以及端口规则的详细列表信息。</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215338465.png" alt="image-20200906215338465"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215347527.png" alt="image-20200906215347527"></p>
+<p>4.选择“新建规则”在弹出的列表中建立需要开放远程连接端口号(以3333为例)，开放端口的具体操作步骤如下图所示：</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215406683.png" alt="image-20200906215406683"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215416876.png" alt="image-20200906215416876"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215426954.png" alt="image-20200906215426954"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215438541.png" alt="image-20200906215438541"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215447381.png" alt="image-20200906215447381"></p>
+<p>经过以上步骤的设置，就添加了开放的端口号，服务器防火墙就会自动放行，详细的信息可以点击设置的规则查看，比如可以设置详细的计算机连接、作用域的IP连接以及协议和端口中选择协议类型等等。</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215504276.png" alt="image-20200906215504276"></p>
+<h2 id="6、更改远程端口"><a href="#6、更改远程端口" class="headerlink" title="6、更改远程端口"></a>6、更改远程端口</h2><p> 有很多暴力破解工具专门针对远程登录，更改远程端口能防范扫描。</p>
+<p>操作方法如下</p>
+<p>1.首先呼出“运行”框，按“win+r”键，输入“regedit”，点“确定”</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906215805220.png" alt="image-20200906215805220"></p>
+<p>2.进入路径：[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Teminal Sever\Wds\rdpwd\Tds\tcp]。</p>
+<p>找到右侧的PortNumber（或直接找3389这个值更快一些哈），点击十进制，将3389修改为新的端口号比如6001，确定。</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906220140816.png" alt="image-20200906220140816"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906220228284.png" alt="image-20200906220228284"></p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906220350886.png" alt="image-20200906220350886"></p>
+<p>3.进入路径：[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Teminal Sever\WinStation\RDP_Tcp]。</p>
+<p>找到右侧的PortNumber（或直接找3389这个值更快一些哈），点击十进制，将3389修改为新的端口号比如6001，确定。</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200906220440703.png" alt="image-20200906220440703"></p>
+<p>4.注册表中的端口修改好后，还需要在防火墙设置新开好的端口：6001，步骤如下：</p>
+<p>开启防火墙——》入站规则</p>
+<p>新建规则：端口——》Tcp——》特定端口：6001——》允许连接——》名称：新远程桌面连接端口，完成</p>
+<p>开启防火墙对应的操作略</p>
+<p>5.将系统默认的3389端口禁用掉。</p>
+<p>最后重启一下电脑，测试一下是否已设置成功，如果设置成功，原先不加端口的ip（如：113.18.206.93）远程连接将会失败，而ip加上新设的端口（113.18.206.93：6001）才能连接成功。</p>
+<h2 id="7、软件降权设置"><a href="#7、软件降权设置" class="headerlink" title="7、软件降权设置"></a>7、软件降权设置</h2><p>常用的Serv-U、SQL Server、MySQL、Apache、Tomcat等都存在安全隐患，所以要用低权限用户运行，这样，即使被黑客攻进系统，也不会对系统造成重大损失。</p>
+<h3 id="降权Serv-U"><a href="#降权Serv-U" class="headerlink" title="降权Serv-U"></a>降权Serv-U</h3><p>1、首先打开serv-u管理添加serv-u为系统服务，在自动开始打上勾；</p>
+<p>2、接下来对Serv－U进行降权。点击开始-所有程序-管理工具-计算机管理-本地用户和组,创建ftptest用户； </p>
+<p>3、建好帐号以后，双击建好的用户编辑用户属性，从“隶属于”里删除user组； </p>
+<p>4、在开始菜单的管理工具里找到“服务”点击打开。在“Serv-U FTP Server服务”上点右键，选择属性继续。然后点击“登录”进入登录帐号选择界面。选择刚才建立的系统帐号名，并在下面重复输入2次该帐号的密码（就是刚才让你记住的那个），然后点“应用”，再次点确定，完成服务的设置； </p>
+<p> 5、找到serv-u的安装目录(C:\Program Files\RhinoSoft.com\Serv-U)设置serv-u安装目录的权限。添加所有权限除了(完全控制，删除，更改权限，取得所有权限)； </p>
+<p> 6、现在，在服务里重启Serv-U FTP Server服务就可以正常启动了。当然，到这里还没有完全设置完，你的FTP用户因为没有权限还是登录不了的，所以还要设置一下目录的权限；</p>
+<p> 7、假设你有一个WEB目录，路径是d:\web。那么在这个目录的“安全设定”里除了管理员和IIS用户都删除掉，再加入ftptest帐号，切记SYSTEM帐号也删除掉。为什么要这样设置呢？因为现在已经是用ftptest帐号启动的SERV－U，而不是用SYSTEM权限启动的了，所以访问目录不再是用SYSTEM而是用ftptest，此时SYSTEM已经没有用了，这样就算真的溢出也不可能得到SYSTEM权限。</p>
+<p>同时，虚拟主机上WEB目录所在盘的根目录还要设置允许ftptest帐号的浏览和读取权限(除了完全控制，更改权限，取得所有权限，遍历文件夹/运行文件)，并确认在高级里设置只有该文件夹。</p>
+<h3 id="降权apache"><a href="#降权apache" class="headerlink" title="降权apache"></a>降权apache</h3><p>net user apache 0xls /add</p>
+<p>net localgroup users apache /del</p>
+<p>建立了一个不属于任何组的用户apche。</p>
+<p>打开计算机管理器—-服务—-apache服务的属性—-选择log on，选择this account</p>
+<p>填入上面所建立的账户和密码，重启apache服务，现在apache运行在低权限下了。</p>
+<h3 id="降权mysql"><a href="#降权mysql" class="headerlink" title="降权mysql"></a>降权mysql</h3><p>1.新建一个账户，给他不要给任何的权限,不加入任何组</p>
+<p>2,给mysql目录只给 system跟administrator跟你新建这个用户权限 </p>
+<p>3.右键我的电脑 管理 找到服务里面的mysql 选择登录选项，选择里面此账户登录，点击你刚才新建的账户跟密码，重新启动mysql它就以你刚才新建的用户权限来运行了。</p>
+<h3 id="降权tomcat"><a href="#降权tomcat" class="headerlink" title="降权tomcat"></a>降权tomcat</h3><p>1、在用户管理里创建tomcat的普通user用户 </p>
+<p>2、打开服务管理,右击我的电脑，选择管理-》服务，选择tomcat，点击以我们创建的tomcat 用户启动服务。 </p>
+<p>3、更改tomcat文件的权限设置，我是这样设置的 </p>
+<p>D:\tomcat\这是tomcat的本目录，需要给tomcat用户读取权限, </p>
+<p>D:\tomcat\temp 给tomcat写入权限 </p>
+<p>D:\tomcat\work 给tomcat写入权限 </p>
+<p>D:\tomcat\logs 给tomcat写入权限 </p>
+<p>其他都是默认的读取、运行权限 </p>
+<p>4、配置jdk目录读取权限 </p>
+<p>d:\setting\Java 给予tomcat读取权限 </p>
+<p>5、配置JAVA网站的访问读取权限，如果有上传图片路径，给予写入权限 </p>
+<p>6、重新启动tomcat就可以了 </p>
+<h2 id="8、修改系统管理员账号名称"><a href="#8、修改系统管理员账号名称" class="headerlink" title="8、修改系统管理员账号名称"></a>8、修改系统管理员账号名称</h2><p>按下“win+r”呼出“运行”框，输入“netplwiz”并点击确定，得到如下界面</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200907091603601.png" alt="image-20200907091603601"></p>
+<p>然后选中想要更名的用户，点击“属性”，出现如下图</p>
+<p><img src= "/img/loading.gif" data-src="/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/image-20200907091659138.png" alt="image-20200907091659138"></p>
+<p>然后进行对应的修改即可</p>
+<h2 id="9、安装安全辅助软件"><a href="#9、安装安全辅助软件" class="headerlink" title="9、安装安全辅助软件"></a>9、安装安全辅助软件</h2><p>没有绝对的安全，只有尽量提升安全，人工+软件搭配，才能最大限度提升安全。</p>
+<p>根据工作需求判断是否加装安全辅助软件</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">MiaoZhenChao</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.luanyu.cool/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/">http://www.luanyu.cool/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.luanyu.cool" target="_blank">ZhenChaoNotes</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/windows/">windows</a></div><div class="post_share"><div class="social-share" data-image="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/731622d1003441438720e9c364d3cdbb.jpg!sswm" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><button class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="wechat" onclick="window.open('http://123.57.180.161/wechat.jpg')"/><div class="post-qr-code__desc">wechat</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="alipay" onclick="window.open('http://123.57.180.161/alipay.jpg')"/><div class="post-qr-code__desc">alipay</div></li></ul></div></button></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/09/07/PLSQ%E5%AE%89%E8%A3%85%E3%80%81%E6%B1%89%E5%8C%96%E3%80%81%E7%A0%B4%E8%A7%A3%E3%80%81%E7%99%BB%E9%99%86%E6%95%99%E7%A8%8B/"><img class="prev-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/43aca7d8f33f47f3a52d41843c7e5d38.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">PLSQ安装、汉化、破解、登陆教程</div></div></a></div><div class="next-post pull-right"><a href="/2020/09/04/VMware%E5%AE%89%E8%A3%85Windows%20server%202012%20R2/"><img class="next-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/69112d245acc4e97bab162032a5e8eb9.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">VMware安装windows server 2012 r2详细教程</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/09/10/windows zabbix客户端安装与配置/" title="zabbix_agentd客户端安装与配置（windows server 2012 R2）"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/2d66596f44054709a6ff9ec23ef339b9.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-10</div><div class="relatedPosts_title">zabbix_agentd客户端安装与配置（windows server 2012 R2）</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/10/zabbix使用自定义监控项监控windows/" title="zabbix使用自定义监控项监控windows"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/49ff1d38d4964a57a79111a8deece4ef.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-10</div><div class="relatedPosts_title">zabbix使用自定义监控项监控windows</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/08/使用samba完成linux与windows文件共享/" title="使用samba完成linux与windows文件共享"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/7acb1c69551d4476a6b6b9f09d24a069.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-08</div><div class="relatedPosts_title">使用samba完成linux与windows文件共享</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/08/使用mount实现linux与windows文件实时共享/" title="挂载Windows文件夹到Linux"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/69112d245acc4e97bab162032a5e8eb9.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-08</div><div class="relatedPosts_title">挂载Windows文件夹到Linux</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/04/VMware安装Windows server 2012 R2/" title="VMware安装windows server 2012 r2详细教程"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/69112d245acc4e97bab162032a5e8eb9.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-04</div><div class="relatedPosts_title">VMware安装windows server 2012 r2详细教程</div></div></a></div><div class="relatedPosts_item"><a href="/2019/09/17/Windows7 无线热点/" title="Windows7 无线热点"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/87bed19326a04c8fa110f1a7eb735c36.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2019-09-17</div><div class="relatedPosts_title">Windows7 无线热点</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="disqus_thread"></div><script>var disqus_config = function () {
+  this.page.url = 'http://www.luanyu.cool/2020/09/04/Windows%20server%202012%20R2%20%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4/';
+  this.page.identifier = '2020/09/04/Windows server 2012 R2 安全防护/';
+  this.page.title = 'Windows server 2012 R2 安全防护';
+};
+(function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+})();
+</script><script>function getDisqusCount() {
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/count.js';
+  s.id = 'dsq-count-scr';
+  (d.head || d.body).appendChild(s);
+}
+
+window.addEventListener('load', getDisqusCount, false);</script></div></article></main><footer id="footer" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/8233054dfbd5431c95238f97a681bee2.jpg!sswm)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2010 - 2021 By MiaoZhenChao</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="footer_custom_text">Hi, welcome to my <a href="/">blog</a>!</div><div class="icp"><a href="http://www.beian.miit.gov.cn/state/outPortal/loginPortal.action" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>豫ICP备20019375号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><button id="readmode" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" title="缩小字体"><i class="fas fa-minus"></i></button><button class="translate_chn_to_cht" id="translateLink" title="简繁转换">繁</button><button id="darkmode" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fas fa-comments"></i></a><button class="close" id="mobile-toc-button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script id="ribbon_piao" mobile="false" src="/js/third-party/piao.js"></script><script id="canvas_nest" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="/js/third-party/canvas-nest.js"></script><script src="/js/third-party/activate-power-mode.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/search/local-search.js"></script><script>if (document.getElementsByClassName('mermaid').length) {
+  loadScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js',function () {
+    mermaid.initialize({
+      theme: 'default',
+  })
+})
+}</script><script src="https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js"></script><script src="/js/Lete.js"></script><script src="/js/daovoice.js"></script><script type="text/javascript" src="/js/crash_cheat.js"></script></body></html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Linux下编译安装MySQL5.6 | ZhenChaoNotes</title><meta name="description" content="【准备工作】 所有操作需要在root用户下 本机测试案例系统信息：centos7.3 安装路径：&#x2F;usr&#x2F;local&#x2F;mysql 【安装MySQL】 先安装如下依赖包: 1$ yum -y install make gcc-c++ cmake bison-devel ncurses-devel    下载MySQL5.6.14安装包 https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1pMNLnhL"><meta name="keywords" content="linux,mysql"><meta name="author" content="MiaoZhenChao"><meta name="copyright" content="MiaoZhenChao"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://www.luanyu.cool/2019/12/16/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85MySQL5.6/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="Linux下编译安装MySQL5.6"><meta property="og:url" content="http://www.luanyu.cool/2019/12/16/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85MySQL5.6/"><meta property="og:site_name" content="ZhenChaoNotes"><meta property="og:description" content="【准备工作】 所有操作需要在root用户下 本机测试案例系统信息：centos7.3 安装路径：&#x2F;usr&#x2F;local&#x2F;mysql 【安装MySQL】 先安装如下依赖包: 1$ yum -y install make gcc-c++ cmake bison-devel ncurses-devel    下载MySQL5.6.14安装包 https:&#x2F;&#x2F;pan.baidu.com&#x2F;s&#x2F;1pMNLnhL"><meta property="og:image" content="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/539671af80a148ed96ab3b4f789a5539.jpg!sswm"><meta property="article:published_time" content="2019-12-16T15:32:15.000Z"><meta property="article:modified_time" content="2020-08-28T13:10:49.157Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="prev" title="pt-table-check和pt-table-sync实践" href="http://www.luanyu.cool/2019/12/21/pt-table-check%E5%92%8Cpt-table-sync%E5%AE%9E%E8%B7%B5/"><link rel="next" title="passwd安全加固脚本分享" href="http://www.luanyu.cool/2019/12/05/passwd%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E8%84%9A%E6%9C%AC%E5%88%86%E4%BA%AB/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: {"languages":{"author":"作者: MiaoZhenChao","link":"链接: ","source":"来源: ZhenChaoNotes","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: false
+  }</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="/css/touming.css"><link rel="stylesheet" href="/css/iconfont.css"><script src="/js/sakura.js"></script><div class="aplayer" data-id="5184835907" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-preload="auto"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.css"><script src="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><meta name="generator" content="Hexo 4.2.1"></head><body><canvas class="fireworks"></canvas><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">96</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">74</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">54</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg" data-type="color"></div><header class="post-bg" id="page-header" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/539671af80a148ed96ab3b4f789a5539.jpg!sswm)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">ZhenChaoNotes</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Linux下编译安装MySQL5.6</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date" title="发表于 2019-12-16 23:32:15"><i class="fa-fw far fa-calendar-alt"></i> 发表于 2019-12-16</time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/linux/">linux</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta__icon"></i><span>字数总计:</span><span class="word-count">768</span><span class="post-meta__separator">|</span><i class="far fa-clock fa-fw post-meta__icon"></i><span>阅读时长: 3 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="far fa-eye fa-fw post-meta__icon"></i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"><span class="post-meta__separator">|</span><i class="far fa-comments fa-fw post-meta__icon"></i><span>评论数:</span><span class="disqus-comment-count comment-count"><a href="http://www.luanyu.cool/2019/12/16/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85MySQL5.6/#disqus_thread"></a></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p><strong>【准备工作】</strong></p>
+<p>所有操作需要在root用户下</p>
+<p>本机测试案例系统信息：centos7.3</p>
+<p>安装路径：/usr/local/mysql</p>
+<p><strong>【安装MySQL】</strong></p>
+<p>先安装如下依赖包:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> yum -y install make gcc-c++ cmake bison-devel ncurses-devel</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>下载MySQL5.6.14安装包</p>
+<p><a href="https://pan.baidu.com/s/1pMNLnhL" target="_blank" rel="noopener">https://pan.baidu.com/s/1pMNLnhL</a></p>
+<p>密码:0k6d</p>
+<p>解压mysql-5.6.14.tar.gz 然后进入目录，编译。命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tar -zxvf mysql-5.6.14.tar.gz</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> mysql-5.6.14</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> cmake -DCMAKE_INSTALL_PREFIX=/usr/<span class="built_in">local</span>/mysql -DMYSQL_DATADIR=/usr/<span class="built_in">local</span>/mysql/data -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock -DMYSQL_TCP_PORT=3306 -DENABLED_LOCAL_INFILE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci</span></span><br></pre></td></tr></table></figure>
+
+<p>编译完成之后，执行安装命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
+
+<p> 安装过程大约需要30分钟时间，安装完成的界面如下：</p>
+<p><strong>【配置MySQL】</strong></p>
+<p><strong>[设置权限]</strong></p>
+<p>使用下面的命令查看是否有mysql用户及用户组</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cat /etc/passwd  <span class="comment">#查看用户列表</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> cat /etc/group   <span class="comment">#查看用户组列表</span></span></span><br><span class="line"></span><br><span class="line"> 如果没有就创建</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> groupadd mysql</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> useradd -g mysql mysql</span></span><br><span class="line"></span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">修改/usr/local/mysql权限</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> chown -R mysql:mysql /usr/<span class="built_in">local</span>/mysql</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>[初始化配置]</strong></p>
+<p>进入安装路径, 执行初始化配置脚本，创建系统自带的数据库和表:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /usr/<span class="built_in">local</span>/mysql</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> scripts/mysql_install_db --basedir=/usr/<span class="built_in">local</span>/mysql --datadir=/usr/<span class="built_in">local</span>/mysql/data --user=mysql</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果安装失败,若出现Can’t locate Data/Dumper.pm in @INC (@INC contains: … ，解决如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> yum install <span class="string">'perl(Data::Dumper)'</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>注意：在CentOS 6.4及以后版本操作系统的最小安装完成后，在/etc目录下会存在一个my.cnf，需要将此文件更名为其他的名字，如：/etc/my.cnf.bak，否则，该文件会干扰源码安装的MySQL的正确配置，造成无法启动。在使用”yum update”更新系统后，需要检查下/etc目录下是否会多出一个my.cnf，如果多出，将它重命名成别的。否则，MySQL将使用这个配置文件启动，可能造成无法正常启动等问题。</p>
+<p>对/etc/my.cnf重命名为/etc/my.cnf.bak，然后拷贝服务脚本到init.d目录，并设置开机启动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cp support-files/mysql.server /etc/init.d/mysql</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> chkconfig mysql on</span></span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> service mysql start  <span class="comment">#启动MySQL</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>[配置用户]</strong></p>
+<p>需要先设置PATH，否则不能直接调用mysql.修改/etc/profile文件，在文件末尾添加:</p>
+<p>$ vim /etc/profile</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PATH=/usr/local/mysql/bin:$PATH</span><br><span class="line">export PATH</span><br></pre></td></tr></table></figure>
+
+<p>保存配置文件，运行下面的命令，让配置立即生效:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">source</span> /etc/profile</span></span><br></pre></td></tr></table></figure>
+
+<p>现在，在终端内直接输入mysql即可进入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mysql -uroot</span></span><br><span class="line"></span><br><span class="line"><span class="meta">mysql&gt;</span><span class="bash"> SET PASSWORD = PASSWORD(<span class="string">'123456'</span>);</span></span><br></pre></td></tr></table></figure>
+
+<p>若要设置root用户可以远程访问，执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span><span class="bash"> GRANT ALL PRIVILEGES ON *.* TO <span class="string">'root'</span>@<span class="string">'172.16.%'</span> IDENTIFIED BY <span class="string">'123456'</span> WITH GRANT OPTION;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>[配置防火墙]</strong></p>
+<p>防火墙的3306端口默认没有开启，若要远程访问，需要开启这个端口。打开/etc/sysconfig/iptables：</p>
+<p>在“-A INPUT –m state –state NEW –m tcp –p –dport 22 –j ACCEPT”，下添加：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A INPUT -m state --state NEW -m tcp -p -dport 3306 -j ACCEPT</span><br></pre></td></tr></table></figure>
+
+<p>然后保存，并关闭该文件，在终端内运行下面的命令，刷新防火墙配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> service iptables restart</span></span><br></pre></td></tr></table></figure>
+
+<p>OK，一切配置完毕，然后可以访问MySQL了。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">MiaoZhenChao</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.luanyu.cool/2019/12/16/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85MySQL5.6/">http://www.luanyu.cool/2019/12/16/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85MySQL5.6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.luanyu.cool" target="_blank">ZhenChaoNotes</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/mysql/">mysql</a></div><div class="post_share"><div class="social-share" data-image="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/731622d1003441438720e9c364d3cdbb.jpg!sswm" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><button class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="wechat" onclick="window.open('http://123.57.180.161/wechat.jpg')"/><div class="post-qr-code__desc">wechat</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="alipay" onclick="window.open('http://123.57.180.161/alipay.jpg')"/><div class="post-qr-code__desc">alipay</div></li></ul></div></button></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2019/12/21/pt-table-check%E5%92%8Cpt-table-sync%E5%AE%9E%E8%B7%B5/"><img class="prev-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/9024001a0828418183bd17238968efe8.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">pt-table-check和pt-table-sync实践</div></div></a></div><div class="next-post pull-right"><a href="/2019/12/05/passwd%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E8%84%9A%E6%9C%AC%E5%88%86%E4%BA%AB/"><img class="next-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/d8ece5b4bafe4f598f029ef9096f9b4c.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">passwd安全加固脚本分享</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/10/09/centos6.10使用ssh连接报错/" title="centos6.10使用ssh连接报错"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/aeb6461fbec34c84ab1be0e8e4981de7.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-09</div><div class="relatedPosts_title">centos6.10使用ssh连接报错</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/08/使用samba完成linux与windows文件共享/" title="使用samba完成linux与windows文件共享"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/7acb1c69551d4476a6b6b9f09d24a069.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-08</div><div class="relatedPosts_title">使用samba完成linux与windows文件共享</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/08/使用mount实现linux与windows文件实时共享/" title="挂载Windows文件夹到Linux"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/69112d245acc4e97bab162032a5e8eb9.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-08</div><div class="relatedPosts_title">挂载Windows文件夹到Linux</div></div></a></div><div class="relatedPosts_item"><a href="/2019/03/13/linux-wa%过高，iostat查看io状况/" title="linux wa%过高，iostat查看io状况"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/4038c05cfe26412292379dd361883e9c.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2019-03-13</div><div class="relatedPosts_title">linux wa%过高，iostat查看io状况</div></div></a></div><div class="relatedPosts_item"><a href="/2018/04/16/linux基本操作/" title="linux基本操作"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/e40b60b11c8e47b4aeffaf192704dd29.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2018-04-16</div><div class="relatedPosts_title">linux基本操作</div></div></a></div><div class="relatedPosts_item"><a href="/2020/08/17/Oracle和mysql区别/" title="Oracle和mysql区别"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/77326f53356049e4bbfcf624b27a34da.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-17</div><div class="relatedPosts_title">Oracle和mysql区别</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="disqus_thread"></div><script>var disqus_config = function () {
+  this.page.url = 'http://www.luanyu.cool/2019/12/16/Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85MySQL5.6/';
+  this.page.identifier = '2019/12/16/Linux下编译安装MySQL5.6/';
+  this.page.title = 'Linux下编译安装MySQL5.6';
+};
+(function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+})();
+</script><script>function getDisqusCount() {
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/count.js';
+  s.id = 'dsq-count-scr';
+  (d.head || d.body).appendChild(s);
+}
+
+window.addEventListener('load', getDisqusCount, false);</script></div></article></main><footer id="footer" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/539671af80a148ed96ab3b4f789a5539.jpg!sswm)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2010 - 2021 By MiaoZhenChao</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="footer_custom_text">Hi, welcome to my <a href="/">blog</a>!</div><div class="icp"><a href="http://www.beian.miit.gov.cn/state/outPortal/loginPortal.action" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>豫ICP备20019375号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><button id="readmode" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" title="缩小字体"><i class="fas fa-minus"></i></button><button class="translate_chn_to_cht" id="translateLink" title="简繁转换">繁</button><button id="darkmode" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fas fa-comments"></i></a><button id="go-up" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script id="ribbon_piao" mobile="false" src="/js/third-party/piao.js"></script><script id="canvas_nest" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="/js/third-party/canvas-nest.js"></script><script src="/js/third-party/activate-power-mode.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/search/local-search.js"></script><script>if (document.getElementsByClassName('mermaid').length) {
+  loadScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js',function () {
+    mermaid.initialize({
+      theme: 'default',
+  })
+})
+}</script><script src="https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js"></script><script src="/js/Lete.js"></script><script src="/js/daovoice.js"></script><script type="text/javascript" src="/js/crash_cheat.js"></script></body></html>

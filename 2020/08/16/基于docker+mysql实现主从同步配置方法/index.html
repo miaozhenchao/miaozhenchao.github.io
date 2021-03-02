@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>基于docker+mysql实现主从同步配置方法 | ZhenChaoNotes</title><meta name="description" content="基于docker+mysql实现主从同步配置方法1.先建立数据存放目录（～&#x2F;test&#x2F;mysql_test&#x2F;） 使用tree查看 123456789--mysql   --master      --data        --conf         --my.cnf        --slave      --data        --conf         --my.cnf  2.准备好"><meta name="keywords" content="mysql,主从复制,docker"><meta name="author" content="MiaoZhenChao"><meta name="copyright" content="MiaoZhenChao"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://www.luanyu.cool/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="基于docker+mysql实现主从同步配置方法"><meta property="og:url" content="http://www.luanyu.cool/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/"><meta property="og:site_name" content="ZhenChaoNotes"><meta property="og:description" content="基于docker+mysql实现主从同步配置方法1.先建立数据存放目录（～&#x2F;test&#x2F;mysql_test&#x2F;） 使用tree查看 123456789--mysql   --master      --data        --conf         --my.cnf        --slave      --data        --conf         --my.cnf  2.准备好"><meta property="og:image" content="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/9a8f743320bd46678d73a0fc1dee867e.jpg!sswm"><meta property="article:published_time" content="2020-08-16T13:37:20.000Z"><meta property="article:modified_time" content="2020-10-16T13:47:20.971Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="prev" title="Oracle和mysql区别" href="http://www.luanyu.cool/2020/08/17/Oracle%E5%92%8Cmysql%E5%8C%BA%E5%88%AB/"><link rel="next" title="用一行Shell命令，搞定九九乘法表！" href="http://www.luanyu.cool/2020/06/03/%E7%94%A8%E4%B8%80%E8%A1%8CShell%E5%91%BD%E4%BB%A4%EF%BC%8C%E6%90%9E%E5%AE%9A%E4%B9%9D%E4%B9%9D%E4%B9%98%E6%B3%95%E8%A1%A8%EF%BC%81/"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: {"languages":{"author":"作者: MiaoZhenChao","link":"链接: ","source":"来源: ZhenChaoNotes","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true
+  }</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="/css/touming.css"><link rel="stylesheet" href="/css/iconfont.css"><script src="/js/sakura.js"></script><div class="aplayer" data-id="5184835907" data-server="netease" data-type="playlist" data-fixed="true" data-listFolded="false" data-order="random" data-preload="auto"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.css"><script src="https://cdn.jsdelivr.net/gh/lete114/CDN/music/APlayer/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/meting@1.2.0/dist/Meting.min.js"></script><meta name="generator" content="Hexo 4.2.1"></head><body><canvas class="fireworks"></canvas><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">96</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">74</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">54</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#基于docker-mysql实现主从同步配置方法"><span class="toc-number">1.</span> <span class="toc-text">基于docker+mysql实现主从同步配置方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-先建立数据存放目录"><span class="toc-number">1.1.</span> <span class="toc-text">1.先建立数据存放目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-准备好-Mysql-Master（主库）和Mysql-Slave（从库）的my-cnf文件"><span class="toc-number">1.2.</span> <span class="toc-text">2.准备好 Mysql Master（主库）和Mysql Slave（从库）的my.cnf文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-创建master主容器"><span class="toc-number">1.3.</span> <span class="toc-text">3.创建master主容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-创建slave从容器"><span class="toc-number">1.4.</span> <span class="toc-text">4.创建slave从容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-master容器设置"><span class="toc-number">1.5.</span> <span class="toc-text">5.master容器设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-slave容器设置"><span class="toc-number">1.6.</span> <span class="toc-text">6.slave容器设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意事宜"><span class="toc-number">1.7.</span> <span class="toc-text">注意事宜</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主从同步验证"><span class="toc-number">1.8.</span> <span class="toc-text">主从同步验证</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div id="web_bg" data-type="color"></div><header class="post-bg" id="page-header" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/9a8f743320bd46678d73a0fc1dee867e.jpg!sswm)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">ZhenChaoNotes</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw iconfont  icon-liuyanban"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/diary/"><i class="fa-fw iconfont  icon-riji"></i><span> 舔狗日记</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 个人简历</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">基于docker+mysql实现主从同步配置方法</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date" title="发表于 2020-08-16 21:37:20"><i class="fa-fw far fa-calendar-alt"></i> 发表于 2020-08-16</time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/docker/">docker</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta__icon"></i><span>字数总计:</span><span class="word-count">1.2k</span><span class="post-meta__separator">|</span><i class="far fa-clock fa-fw post-meta__icon"></i><span>阅读时长: 4 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="far fa-eye fa-fw post-meta__icon"></i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"><span class="post-meta__separator">|</span><i class="far fa-comments fa-fw post-meta__icon"></i><span>评论数:</span><span class="disqus-comment-count comment-count"><a href="http://www.luanyu.cool/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/#disqus_thread"></a></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="基于docker-mysql实现主从同步配置方法"><a href="#基于docker-mysql实现主从同步配置方法" class="headerlink" title="基于docker+mysql实现主从同步配置方法"></a>基于docker+mysql实现主从同步配置方法</h1><h2 id="1-先建立数据存放目录"><a href="#1-先建立数据存放目录" class="headerlink" title="1.先建立数据存放目录"></a>1.先建立数据存放目录</h2><p>（～/test/mysql_test/）</p>
+<p>使用tree查看</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">--mysql</span><br><span class="line">   --master</span><br><span class="line">      --data  </span><br><span class="line">      --conf</span><br><span class="line">         --my.cnf     </span><br><span class="line">   --slave</span><br><span class="line">      --data  </span><br><span class="line">      --conf</span><br><span class="line">         --my.cnf</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-准备好-Mysql-Master（主库）和Mysql-Slave（从库）的my-cnf文件"><a href="#2-准备好-Mysql-Master（主库）和Mysql-Slave（从库）的my-cnf文件" class="headerlink" title="2.准备好 Mysql Master（主库）和Mysql Slave（从库）的my.cnf文件"></a>2.准备好 Mysql Master（主库）和Mysql Slave（从库）的my.cnf文件</h2><p><strong>Master my.cnf</strong> 配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">server_id = 1</span><br><span class="line"></span><br><span class="line">log-bin= mysql-bin</span><br><span class="line">read-only=0</span><br><span class="line"></span><br><span class="line">replicate-ignore-db=mysql</span><br><span class="line">replicate-ignore-db=sys</span><br><span class="line">replicate-ignore-db=information_schema</span><br><span class="line">replicate-ignore-db=performance_schema</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">!includedir /etc/mysql/conf.d/</span><br><span class="line">!includedir /etc/mysql/mysql.conf.d/</span><br></pre></td></tr></table></figure>
+
+<p><strong>Slave my.cnf</strong> 配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">server_id = 2</span><br><span class="line"></span><br><span class="line">log-bin= mysql-bin</span><br><span class="line">read-only=1</span><br><span class="line"></span><br><span class="line">replicate-ignore-db=mysql</span><br><span class="line">replicate-ignore-db=sys</span><br><span class="line">replicate-ignore-db=information_schema</span><br><span class="line">replicate-ignore-db=performance_schema</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">!includedir /etc/mysql/conf.d/</span><br><span class="line">!includedir /etc/mysql/mysql.conf.d/</span><br></pre></td></tr></table></figure>
+
+<p><em>注：在本文中，由上述my.cnf配置文件可得知，主从同步针对的数据库（除了mysql,sys,information_schema,performance_schema这些以外）的其它所有数据库都会进行同步（含数据库、表、数据等）</em></p>
+<p><strong>小结：</strong></p>
+<ul>
+<li>由上述master my.cnf和slave my.cnf配置文件中可知，两者的区别主要在于server_id和read-only值不同</li>
+<li>server_id标识服务实例，master和slave值需要保证唯一</li>
+<li>read-only中值为0表示支持可读写、1的话表明仅支持可读</li>
+</ul>
+<h2 id="3-创建master主容器"><a href="#3-创建master主容器" class="headerlink" title="3.创建master主容器"></a>3.创建master主容器</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name mastermysql -d -p 3307:3306 -e MYSQL_ROOT_PASSWORD=root -v ~/test/mysql_test/master/data:/var/lib/mysql -v ~/test/mysql_test/master/conf/my.cnf:/etc/mysql/my.cnf mysql:5.7</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-创建slave从容器"><a href="#4-创建slave从容器" class="headerlink" title="4.创建slave从容器"></a>4.创建slave从容器</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name slavemysql -d -p 3308:3306 -e MYSQL_ROOT_PASSWORD=root -v ~/test/mysql_test/slave/data:/var/lib/mysql -v ~/test/mysql_test/slave/conf/my.cnf:/etc/mysql/my.cnf mysql:5.7</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-master容器设置"><a href="#5-master容器设置" class="headerlink" title="5.master容器设置"></a>5.master容器设置</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">//进入master容器</span><br><span class="line"></span><br><span class="line">docker exec -it mastermysql bash</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//启动mysql命令，刚在创建窗口时我们把密码设置为：root</span><br><span class="line"></span><br><span class="line">mysql -u root -p</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//创建一个用户来同步数据，每个slave使用标准的MySQL用户名和密码连接master。进行复制操作的用户会授予REPLICATION SLAVE 权限。</span><br><span class="line"></span><br><span class="line">CREATE USER 'slave'@ '%' IDENTIFIED BY '123456';  (其实可省略)</span><br><span class="line">GRANT REPLICATION SLAVE ON *.* to 'slave'@'%' identified by '123456';</span><br><span class="line"></span><br><span class="line">//这里表示创建一个slaver同步账号slave，允许访问的IP地址为%，%表示通配符</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//查看状态，记住File、Position的值，在Slave中将用到</span><br><span class="line">show master status/G;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-slave容器设置"><a href="#6-slave容器设置" class="headerlink" title="6.slave容器设置"></a>6.slave容器设置</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">//进入slaver容器</span><br><span class="line">docker exec -it slavemysql bash</span><br><span class="line"></span><br><span class="line">//启动mysql命令，刚在创建窗口时我们把密码设置为：root</span><br><span class="line">mysql -u root -p</span><br><span class="line"></span><br><span class="line">//设置主库链接</span><br><span class="line">change master to master_host='172.17.0.2',master_user='slave',master_password='123456',master_log_file='mysql-bin.000001',master_log_pos=0,master_port=3306;</span><br><span class="line"></span><br><span class="line">//启动从库同步</span><br><span class="line">start slave;</span><br><span class="line"></span><br><span class="line">//查看状态</span><br><span class="line">show slave status\G;</span><br></pre></td></tr></table></figure>
+
+<p>如果 show slave status\G命令结果中出现： Slave_IO_Running: Yes Slave_SQL_Running: Yes 以上两项都为Yes，那说明没问题了。</p>
+<h2 id="注意事宜"><a href="#注意事宜" class="headerlink" title="注意事宜"></a>注意事宜</h2><p>1 首先在主从没有生效的时候，要保持两台服务器数据库、表相同，数据相同</p>
+<p>那如何实现主从库在开始之间的同步呢</p>
+<p>*<em>master容器上执行： *</em></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -uroot -p --all-databases &gt;/root/all_database.sql</span><br></pre></td></tr></table></figure>
+
+<p>将all_database.sql拷贝到从库中来，在slave从库容器上执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -uroot -p &lt;all_database.sql</span><br></pre></td></tr></table></figure>
+
+<p>如此两步骤，主库和从库数据会追加相平，保持同步！</p>
+<p>再此过程中，若主库存在业务，在同步的时候要先锁表，让其不要有修改！</p>
+<p>#如需要，可以master容器中，执行以下命令锁定数据库以防止写入数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;FLUSH TABLES WITH READ LOCK;</span><br></pre></td></tr></table></figure>
+
+<p>等待主从数据追平，主从同步后在打开锁！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#解锁数据表。</span><br><span class="line"></span><br><span class="line">mysql&gt;UNLOCK TABLES;</span><br></pre></td></tr></table></figure>
+
+<p>主从数据追平后，定位好从库到主库日志的文件名字，和相应的位置</p>
+<p><strong>master主库运行：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show master status\G;</span><br></pre></td></tr></table></figure>
+
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214157287.png" alt="image-20201016214157287"></p>
+<p>看到且记住相应文件名字和位置，下面会用到</p>
+<p><strong>slave从库运行：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#设置主库链接</span><br><span class="line">change master to master_host&#x3D;&#39;172.17.0.9&#39;,master_user&#x3D;&#39;slave&#39;,master_password&#x3D;&#39;123456&#39;,master_log_file&#x3D;&#39;mysql-bin.000004&#39;,master_log_pos&#x3D;2037,master_port&#x3D;3306;</span><br><span class="line"></span><br><span class="line">#执行从库同步</span><br><span class="line">start slave;</span><br><span class="line"></span><br><span class="line">#查看从库同步状态</span><br><span class="line">show slave status\G;</span><br></pre></td></tr></table></figure>
+
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214227265.png" alt="image-20201016214227265"></p>
+<p>在结果中看到：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Slave_IO_Running: Yes</span><br><span class="line">Slave_SQL_Running: Yes</span><br></pre></td></tr></table></figure>
+
+<p>即可成功同步！</p>
+<h2 id="主从同步验证"><a href="#主从同步验证" class="headerlink" title="主从同步验证"></a>主从同步验证</h2><p>1 如当前数据库情况如下：</p>
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214303340.png" alt="image-20201016214303340"></p>
+<p>2、在master主库容器中，创建数据库master_demo，并在此库下创建表userinfo，并插入一条记录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">create database master_demo;</span><br><span class="line">use master_demo;</span><br><span class="line">create table userinfo(username varchar(50),age int);</span><br><span class="line">insert into userinfo values(&#39;Tom&#39;,18);</span><br></pre></td></tr></table></figure>
+
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214410258.png" alt="image-20201016214410258"></p>
+<p>3、此时，进入从库容器中，查看:</p>
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214420938.png" alt="image-20201016214420938"></p>
+<p>确实已经将在master主库新建的数据库和表记录都同步过来了。</p>
+<p>既然是主从同步，那反过来验证一下，在从库下插入记录后，会不会同步到主库中来呢？</p>
+<p>在从库上操作插入记录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into userinfo values(&#39;slave&#39;,20);</span><br></pre></td></tr></table></figure>
+
+<p>查看：</p>
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214450831.png" alt="image-20201016214450831"></p>
+<p>切到master主库中，查看：</p>
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214500923.png" alt="image-20201016214500923"></p>
+<p>发现在master主库中，还是只有一条记录，说明与预期设想的一样，在从库中插入记录，是不会同步到master主库中来的</p>
+<p>再来一次，在主库master上，插入新记录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into userinfo values(&#39;master&#39;,25);</span><br></pre></td></tr></table></figure>
+
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214530758.png" alt="image-20201016214530758"></p>
+<p>在从库中，查看</p>
+<p><img src= "/img/loading.gif" data-src="/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/image-20201016214544948.png" alt="image-20201016214544948"></p>
+<p>发现在master主库中新加入的master记录，在从库中同步过来了。</p>
+<p>到此，基于docker mysql数据库的主从同步配置，验证到此结束</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">MiaoZhenChao</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://www.luanyu.cool/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/">http://www.luanyu.cool/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://www.luanyu.cool" target="_blank">ZhenChaoNotes</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mysql/">mysql</a><a class="post-meta__tags" href="/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">主从复制</a><a class="post-meta__tags" href="/tags/docker/">docker</a></div><div class="post_share"><div class="social-share" data-image="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/731622d1003441438720e9c364d3cdbb.jpg!sswm" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><button class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="post-qr-code__img" src="/img/wechat.jpg" alt="wechat" onclick="window.open('http://123.57.180.161/wechat.jpg')"/><div class="post-qr-code__desc">wechat</div></li><li class="reward-item"><img class="post-qr-code__img" src="/img/alipay.jpg" alt="alipay" onclick="window.open('http://123.57.180.161/alipay.jpg')"/><div class="post-qr-code__desc">alipay</div></li></ul></div></button></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/08/17/Oracle%E5%92%8Cmysql%E5%8C%BA%E5%88%AB/"><img class="prev-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/77326f53356049e4bbfcf624b27a34da.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Oracle和mysql区别</div></div></a></div><div class="next-post pull-right"><a href="/2020/06/03/%E7%94%A8%E4%B8%80%E8%A1%8CShell%E5%91%BD%E4%BB%A4%EF%BC%8C%E6%90%9E%E5%AE%9A%E4%B9%9D%E4%B9%9D%E4%B9%98%E6%B3%95%E8%A1%A8%EF%BC%81/"><img class="next-cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/e7069c7edea94ba8bdac499415b37bfb.jpg!sswm" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">用一行Shell命令，搞定九九乘法表！</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2018/11/29/Mysql 主从复制不一致检测及解决方法/" title="Mysql 主从复制不一致检测及解决方法"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/f3e80a1e89fe4562836d197a3c6a660c.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2018-11-29</div><div class="relatedPosts_title">Mysql 主从复制不一致检测及解决方法</div></div></a></div><div class="relatedPosts_item"><a href="/2020/08/17/Oracle和mysql区别/" title="Oracle和mysql区别"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/77326f53356049e4bbfcf624b27a34da.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-17</div><div class="relatedPosts_title">Oracle和mysql区别</div></div></a></div><div class="relatedPosts_item"><a href="/2020/04/12/修改 mysql 密码 Unknown column 'password' in 'field list'/" title="修改 mysql 密码 Unknown column 'password' in 'field list'"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/c25a3d988fa949d88709bcdfcb701fcd.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-04-12</div><div class="relatedPosts_title">修改 mysql 密码 Unknown column 'password' in 'field list'</div></div></a></div><div class="relatedPosts_item"><a href="/2020/02/28/mysql主从复制失效的恢复/" title="mysql主从复制失效的恢复"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/4480c41dc4b44a34a661acea0d7966ba.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-02-28</div><div class="relatedPosts_title">mysql主从复制失效的恢复</div></div></a></div><div class="relatedPosts_item"><a href="/2019/12/21/pt-table-check和pt-table-sync实践/" title="pt-table-check和pt-table-sync实践"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/9024001a0828418183bd17238968efe8.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2019-12-21</div><div class="relatedPosts_title">pt-table-check和pt-table-sync实践</div></div></a></div><div class="relatedPosts_item"><a href="/2019/12/16/Linux下编译安装MySQL5.6/" title="Linux下编译安装MySQL5.6"><img class="relatedPosts_cover" data-src="https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/539671af80a148ed96ab3b4f789a5539.jpg!sswm"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2019-12-16</div><div class="relatedPosts_title">Linux下编译安装MySQL5.6</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="disqus_thread"></div><script>var disqus_config = function () {
+  this.page.url = 'http://www.luanyu.cool/2020/08/16/%E5%9F%BA%E4%BA%8Edocker+mysql%E5%AE%9E%E7%8E%B0%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%85%8D%E7%BD%AE%E6%96%B9%E6%B3%95/';
+  this.page.identifier = '2020/08/16/基于docker+mysql实现主从同步配置方法/';
+  this.page.title = '基于docker+mysql实现主从同步配置方法';
+};
+(function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+})();
+</script><script>function getDisqusCount() {
+  var d = document, s = d.createElement('script');
+  s.src = 'https://.disqus.com/count.js';
+  s.id = 'dsq-count-scr';
+  (d.head || d.body).appendChild(s);
+}
+
+window.addEventListener('load', getDisqusCount, false);</script></div></article></main><footer id="footer" style="background-image: url(https://ssyerv1.oss-cn-hangzhou.aliyuncs.com/picture/9a8f743320bd46678d73a0fc1dee867e.jpg!sswm)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2010 - 2021 By MiaoZhenChao</div><div class="framework-info"><span>驱动 </span><a href="https://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div><div class="footer_custom_text">Hi, welcome to my <a href="/">blog</a>!</div><div class="icp"><a href="http://www.beian.miit.gov.cn/state/outPortal/loginPortal.action" target="_blank" rel="noopener"><img class="icp-icon" src="/img/icp.png"/><span>豫ICP备20019375号</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><button id="readmode" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" title="缩小字体"><i class="fas fa-minus"></i></button><button class="translate_chn_to_cht" id="translateLink" title="简繁转换">繁</button><button id="darkmode" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fas fa-comments"></i></a><button class="close" id="mobile-toc-button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script><script defer id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script id="ribbon_piao" mobile="false" src="/js/third-party/piao.js"></script><script id="canvas_nest" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="/js/third-party/canvas-nest.js"></script><script src="/js/third-party/activate-power-mode.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/search/local-search.js"></script><script>if (document.getElementsByClassName('mermaid').length) {
+  loadScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js',function () {
+    mermaid.initialize({
+      theme: 'default',
+  })
+})
+}</script><script src="https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/js/mouse_snow.min.js"></script><script src="/js/Lete.js"></script><script src="/js/daovoice.js"></script><script type="text/javascript" src="/js/crash_cheat.js"></script></body></html>
